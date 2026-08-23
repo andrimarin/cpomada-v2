@@ -4,6 +4,22 @@ Hola 👋
 
 Has recibido una **solución completa y profesional** para monetizar tu portal WiFi Omada con pago móvil Bancomercantil.
 
+🆕 **ACTUALIZACIÓN**: Ahora incluye **Docker** para instalar en 5 minutos sin complicaciones.
+
+---
+
+## 🐳 DOCKER AGREGADO (¡NUEVO!)
+
+```bash
+# Una línea para instalar TODO
+./scripts/docker-setup.sh
+
+# ¡Listo en 2 minutos!
+# Accede a http://localhost:3000
+```
+
+**Esto es la forma más fácil.** Lee: `DOCKER_QUICK_START.md` (5 min)
+
 ---
 
 ## ⚡ EMPIEZA EN 3 PASOS
@@ -166,35 +182,42 @@ Tiempo a ingresos:      5-6 semanas
 
 ## 🚀 PRÓXIMO PASO (ELIGE UNO)
 
-### Opción A: Super Rápido (10 minutos)
+### Opción A: Super Rápido CON DOCKER (5 minutos) ⭐ RECOMENDADO
+```bash
+1. Abre: DOCKER_QUICK_START.md
+2. Ejecuta: ./scripts/docker-setup.sh
+3. Accede: http://localhost:3000
+✨ TODO AUTOMÁTICO - SIN INSTALAR NADA
+```
+
+### Opción B: Super Rápido SIN DOCKER (10 minutos)
 ```bash
 1. Abre: QUICK_START.md
 2. Sigue los 7 pasos
 3. Prueba tu primer endpoint
 ```
 
-### Opción B: Completo (2 horas)
+### Opción C: Completo (2 horas)
 ```bash
 1. Abre: VISUAL_SUMMARY.md ......... (5 min)
 2. Abre: README_FINAL.md ........... (30 min)
-3. Abre: IMPLEMENTATION_GUIDE.md .. (60 min)
+3. Abre: DOCKER_GUIDE.md o IMPLEMENTATION_GUIDE.md (60 min)
 4. Instala y prueba ............... (25 min)
 ```
 
-### Opción C: Como Ejecutivo (1 hora)
+### Opción D: Como Ejecutivo (1 hora)
 ```bash
 1. Abre: VISUAL_SUMMARY.md ......... (5 min)
 2. Abre: PROPUESTA_FINAL.md ....... (30 min)
 3. Abre: README_FINAL.md .......... (25 min)
 ```
 
-### Opción D: Planeador (2.5 horas)
+### Opción E: Planeador (2.5 horas)
 ```bash
 1. Abre: VISUAL_SUMMARY.md ......... (5 min)
 2. Abre: IMPLEMENTATION_PLAN.md ... (45 min)
-3. Abre: IMPLEMENTATION_GUIDE.md .. (60 min)
-4. Abre: QUICK_START.md .......... (10 min)
-5. Planifica tu timeline
+3. Abre: DOCKER_GUIDE.md o IMPLEMENTATION_GUIDE.md (60 min)
+4. Planifica tu timeline
 ```
 
 ---
@@ -213,13 +236,15 @@ Tiempo a ingresos:      5-6 semanas
 
 | Necesito... | Ver archivo... |
 |-----------|----------------|
-| Instalar en 10 min | QUICK_START.md |
-| Entender completo | README_FINAL.md |
-| Plan de implementación | IMPLEMENTATION_PLAN.md |
-| Detalles técnicos | IMPLEMENTATION_GUIDE.md |
-| Propuesta ejecutiva | PROPUESTA_FINAL.md |
-| Navegar todo | INDEX.md |
-| Resumen visual | VISUAL_SUMMARY.md |
+| ⚡ Docker (5 min) | DOCKER_QUICK_START.md |
+| 🐳 Docker completo | DOCKER_GUIDE.md |
+| 📦 Instalar normal (10 min) | QUICK_START.md |
+| 📖 Entender completo | README_FINAL.md |
+| 📅 Plan de implementación | IMPLEMENTATION_PLAN.md |
+| 📋 Detalles técnicos | IMPLEMENTATION_GUIDE.md |
+| 💼 Propuesta ejecutiva | PROPUESTA_FINAL.md |
+| 🗺️ Navegar todo | INDEX.md |
+| 📊 Resumen visual | VISUAL_SUMMARY.md |
 
 ---
 

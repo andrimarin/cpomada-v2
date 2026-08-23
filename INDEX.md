@@ -104,7 +104,19 @@ cpomada-v2/
 
 ## 🗺️ MAPAS DE NAVEGACIÓN
 
-### Por Rol
+### Por Opción de Instalación
+
+#### 🐳 Con Docker (Recomendado)
+1. DOCKER_QUICK_START.md - Instalar en 5 minutos
+2. DOCKER_GUIDE.md - Guía completa
+3. backend/ - Entender código
+4. INDEX.md - Navegar
+
+#### 💻 Sin Docker (Local)
+1. QUICK_START.md - Instalar en 10 minutos
+2. IMPLEMENTATION_GUIDE.md - Detalles técnicos
+3. backend/ - Entender código
+4. INDEX.md - Navegar
 
 #### 👨‍💻 Desarrollador Backend
 1. QUICK_START.md - Instalación
@@ -264,6 +276,8 @@ cpomada-v2/
 
 | Documento | Páginas | Tiempo | Para Quién | Contenido |
 |-----------|---------|--------|-----------|-----------|
+| **DOCKER_QUICK_START.md** | 5 | 5 min | Todos | Docker en 5 min |
+| **DOCKER_GUIDE.md** | 15 | 30 min | DevOps | Docker completo |
 | QUICK_START.md | 8 | 10 min | Todos | Instalación rápida |
 | README_FINAL.md | 15 | 30 min | Todos | Propuesta completa |
 | IMPLEMENTATION_GUIDE.md | 25 | 60 min | Técnicos | Guía detallada |
