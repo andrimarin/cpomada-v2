@@ -36,6 +36,7 @@ Comparativas
 
 ## ⚡ INSTALACIÓN SIMPLIFICADA
 
+
 ### ANTES (Local - 30 minutos)
 ```bash
 # Instalar Node
@@ -76,14 +77,14 @@ open http://localhost:3000
 
 ```
 ┌─────────────────────────────────────────────────┐
-│ ASPECTO        │ LOCAL    │ DOCKER             │
+│ ASPECTO        │ LOCAL    │ DOCKER              │
 ├─────────────────────────────────────────────────┤
-│ Instalación    │ 30 min   │ 2 min ⚡           │
-│ Complejidad    │ Media    │ Baja               │
-│ Setup Manual   │ Sí       │ Automático ✅      │
-│ Portabilidad   │ Baja     │ Perfecta ✅        │
-│ Sistema Limpio │ Afecta   │ Aislado ✅         │
-│ Producción     │ Tedioso  │ Listo ✅           │
+│ Instalación    │ 30 min   │ 2 min ⚡             │
+│ Complejidad    │ Media    │ Baja                │
+│ Setup Manual   │ Sí       │ Automático ✅       │
+│ Portabilidad   │ Baja     │ Perfecta ✅         │
+│ Sistema Limpio │ Afecta   │ Aislado ✅          │
+│ Producción     │ Tedioso  │ Listo ✅            │
 └─────────────────────────────────────────────────┘
 ```
 
