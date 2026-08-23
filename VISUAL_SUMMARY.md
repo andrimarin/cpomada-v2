@@ -4,13 +4,13 @@
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│  PORTAL CAUTIVO OMADA CON PAGO MÓVIL BANCOMERCANTIL V2.0    │
+│  PORTAL CAUTIVO OMADA CON PAGO MÓVIL BANCOMERCANTIL V2.0     │
 │                                                              │
-│  ✅ BACKEND COMPLETO          ✅ API REST FULL              │
-│  ✅ BD MARIADB                ✅ ENCRIPTACIÓN AES256        │
-│  ✅ INTEGRACIONES LISTAS       ✅ CÓDIGO COMENTADO          │
-│  ✅ 4 DOCUMENTOS               ✅ 5 EJEMPLOS DE CÓDIGO      │
-│  ✅ DATOS PRECARGADOS          ✅ DEPLOYMENT READY          │
+│  ✅ BACKEND COMPLETO          ✅ API REST FULL               │
+│  ✅ BD MARIADB                ✅ ENCRIPTACIÓN AES256         │
+│  ✅ INTEGRACIONES LISTAS       ✅ CÓDIGO COMENTADO           │
+│  ✅ 4 DOCUMENTOS               ✅ 5 EJEMPLOS DE CÓDIGO       │
+│  ✅ DATOS PRECARGADOS          ✅ DEPLOYMENT READY           │
 └──────────────────────────────────────────────────────────────┘
 ```
 
