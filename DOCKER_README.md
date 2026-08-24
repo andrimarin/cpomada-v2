@@ -104,7 +104,7 @@ docker-compose.yml
 - **Live Reload**: Cambios reflejados automáticamente
 
 ### 2. MariaDB
-- **Imagen**: mariadb:10.6-alpine
+- **Imagen**: mariadb:latest
 - **Puerto**: 3306
 - **Volumen**: Datos persistentes
 - **Inicialización**: Automática con schema + seed

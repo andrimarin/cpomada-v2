@@ -3,7 +3,7 @@ version: '3.8'
 services:
   # Base de datos MariaDB
   mariadb:
-    image: mariadb:10.6-alpine
+    image: mariadb:latest
     container_name: omada_portal_db
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
