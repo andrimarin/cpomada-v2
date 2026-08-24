@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal WiFi Omada - Acceso</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <img src="logo.png" alt="Logo" class="logo" />
+    <h1>Bienvenido al Portal WiFi</h1>
+    <form id="access-form">
+      <label for="phone">Teléfono (Pago Móvil):</label>
+      <input type="tel" id="phone" name="phone" required placeholder="0414-1234567">
+      <label for="plan">Selecciona tu plan:</label>
+      <select id="plan" name="plan" required></select>
+      <button type="submit">Pagar y Conectar</button>
+    </form>
+    <div id="status"></div>
+    <footer>
+      <small>Powered by Omada + Bancomercantil</small>
+    </footer>
+  </div>
+  <script src="index.js"></script>
+</body>
+</html>
