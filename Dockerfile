@@ -2,9 +2,17 @@ FROM node:18-alpine
 
 WORKDIR /app
 
+# Configurar npm para evitar timeouts largos en redes lentas
+RUN npm config set fetch-retries 5 \
+    && npm config set fetch-retry-factor 2 \
+    && npm config set fetch-retry-mintimeout 20000 \
+    && npm config set fetch-retry-maxtimeout 120000 \
+    && npm config set registry https://registry.npmjs.org/
+
 COPY package*.json ./
 
-RUN npm install --production
+# Instalar dependencias (capa cacheable si package.json no cambia)
+RUN npm install --production --no-audit --no-fund --prefer-offline
 
 # Copiar código backend
 COPY backend ./backend
