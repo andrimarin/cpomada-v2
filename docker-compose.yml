@@ -59,7 +59,7 @@ services:
       - "${PORT:-3000}:3000"
     volumes:
       - ./backend:/app/backend
-      - ./resources:/app/resources
+      - ./frontend:/app/frontend
     networks:
       - omada_network
     restart: unless-stopped

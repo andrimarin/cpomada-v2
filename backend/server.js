@@ -67,21 +67,37 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Importar rutas
+// Importar rutas (cada una por separado para que un fallo no bloquee las demás)
 try {
   const planRoutes = require('./routes/plans');
-  const paymentRoutes = require('./routes/payments');
-  const sessionRoutes = require('./routes/sessions');
-  const omadaRoutes = require('./routes/omada');
-
   app.use('/api/v1/plans', planRoutes);
-  app.use('/api/v1/payments', paymentRoutes);
-  app.use('/api/v1/sessions', sessionRoutes);
-  app.use('/api/v1/omada', omadaRoutes);
-  
-  console.log('✅ Rutas API cargadas');
+  console.log('✅ Ruta /api/v1/plans cargada');
 } catch (err) {
-  console.warn('⚠️ Algunas rutas no están disponibles:', err.message);
+  console.error('❌ Error cargando /api/v1/plans:', err.message);
+}
+
+try {
+  const paymentRoutes = require('./routes/payment');
+  app.use('/api/v1/payments', paymentRoutes);
+  console.log('✅ Ruta /api/v1/payments cargada');
+} catch (err) {
+  console.error('❌ Error cargando /api/v1/payments:', err.message);
+}
+
+try {
+  const sessionRoutes = require('./routes/sessions');
+  app.use('/api/v1/sessions', sessionRoutes);
+  console.log('✅ Ruta /api/v1/sessions cargada');
+} catch (err) {
+  console.error('❌ Error cargando /api/v1/sessions:', err.message);
+}
+
+try {
+  const omadaRoutes = require('./routes/omada');
+  app.use('/api/v1/omada', omadaRoutes);
+  console.log('✅ Ruta /api/v1/omada cargada');
+} catch (err) {
+  console.error('❌ Error cargando /api/v1/omada:', err.message);
 }
 
 // ============ RUTA RAÍZ ============
