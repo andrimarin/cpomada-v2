@@ -74,7 +74,7 @@ fi
 # Build y start
 echo ""
 echo "🚀 Iniciando servicios..."
-docker-compose up -d
+docker-compose up -d --build
 
 # Esperar a que la BD esté lista
 echo "⏳ Esperando base de datos..."
