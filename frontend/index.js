@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('/api/v1/payments/initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone: phoneFormatted, planId })
+        body: JSON.stringify({ phone: phoneFormatted, plan_id: planId })
       });
 
       const result = await res.json();
