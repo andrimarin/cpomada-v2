@@ -23,11 +23,11 @@ Tu portal cautivo Omada actual ha sido completamente rediseñado para:
 | Aspecto | ANTES | DESPUÉS |
 |---------|-------|---------|
 | **Autenticación** | Solo Local User/RADIUS | + Pago Móvil |
-| **Planes** | Estáticos (vouchers) | Dinámicos por hora |
-| **Persistencia** | Ninguna | MariaDB completa |
-| **Pagos** | API externa | Integrado Bancomercantil |
-| **Seguridad** | Básica | Encriptación AES256 + HTTPS |
-| **API** | Limitada | REST completa |
+| **Planes**        | Estáticos (vouchers) | Dinámicos por hora |
+| **Persistencia**  | Ninguna | MariaDB completa |
+| **Pagos**         | API externa | Integrado Bancomercantil |
+| **Seguridad**     | Básica | Encriptación AES256 + HTTPS |
+| **API**           | Limitada | REST completa |
 | **Escalabilidad** | Media | Enterprise-ready |
 | **Integraciones** | 1 (Omada) | 2 (Omada + Bancomercantil) |
 
