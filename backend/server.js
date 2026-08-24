@@ -7,6 +7,7 @@ const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const path = require('path');
+const fs = require('fs');
 require('dotenv').config();
 
 const app = express();
@@ -28,9 +29,35 @@ app.use(express.urlencoded({ limit: '10kb', extended: true }));
 const { encryptionMiddleware } = require('./middleware/encryption');
 app.use(encryptionMiddleware);
 
-// Servir archivos estáticos (HTML, CSS, JS)
-app.use(express.static(path.join(__dirname, '../frontend')));
+// ============ SERVIR FRONTEND ============
+// Buscar frontend en múltiples ubicaciones
+const frontendPaths = [
+  path.join(__dirname, '../frontend'),
+  path.join(__dirname, '../../frontend'),
+  path.join(__dirname, '../resources'),
+  '/app/frontend',
+  '/app/resources'
+];
 
+let frontendFound = false;
+for (const frontendPath of frontendPaths) {
+  try {
+    if (fs.existsSync(frontendPath)) {
+      console.log(`✅ Frontend encontrado en: ${frontendPath}`);
+      app.use(express.static(frontendPath));
+      frontendFound = true;
+      break;
+    }
+  } catch (err) {
+    console.log(`⚠️ Ruta no válida: ${frontendPath}`);
+  }
+}
+
+if (!frontendFound) {
+  console.warn('⚠️ Frontend no encontrado en ninguna ruta');
+}
+
+// ============ RUTAS API ============
 // Health check
 app.get('/health', (req, res) => {
   res.json({
@@ -51,41 +78,42 @@ try {
   app.use('/api/v1/payments', paymentRoutes);
   app.use('/api/v1/sessions', sessionRoutes);
   app.use('/api/v1/omada', omadaRoutes);
+  
+  console.log('✅ Rutas API cargadas');
 } catch (err) {
-  console.warn('⚠️  Algunas rutas no están disponibles:', err.message);
+  console.warn('⚠️ Algunas rutas no están disponibles:', err.message);
 }
 
-// Rutas estáticas del portal
-app.use('/portal', express.static('../resources'));
-
-// RUTA RAÍZ
+// ============ RUTA RAÍZ ============
 // Servir index.html para rutas no encontradas
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+  const indexPaths = [
+    path.join(__dirname, '../frontend/index.html'),
+    path.join(__dirname, '../../frontend/index.html'),
+    path.join(__dirname, '../resources/index.html'),
+    '/app/frontend/index.html',
+    '/app/resources/index.html'
+  ];
+  
+  for (const indexPath of indexPaths) {
+    if (fs.existsSync(indexPath)) {
+      return res.sendFile(indexPath);
+    }
+  }
+  
+  res.status(404).send('Frontend no encontrado');
 });
 
-// 404 Handler
-app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: 'Ruta no encontrada'
-  });
-});
-
-// Error Handler
+// ============ MANEJO DE ERRORES ============
 app.use((err, req, res, next) => {
-  console.error('Error:', err);
-
+  console.error(err.stack);
   res.status(err.status || 500).json({
-    success: false,
-    errorCode: err.code || 'INTERNAL_ERROR',
-    message: process.env.NODE_ENV === 'production' 
-      ? 'Error interno del servidor'
-      : err.message
+    error: err.message || 'Error interno del servidor',
+    status: err.status || 500
   });
 });
 
-// Iniciar servidor
+// ============ INICIAR SERVIDOR ============
 app.listen(PORT, () => {
   console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
   console.log(`📱 Frontend: http://localhost:${PORT}`);
