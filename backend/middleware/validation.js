@@ -5,11 +5,52 @@ const validator = require('validator');
 
 /**
  * Validar formato de número de teléfono
- * Formato esperado: +584XX-XXXXXXX
+ * Acepta formatos: +584147979209, 584147979209, 0414-7979209
+ * Formato esperado internamente: +58XXXXXXXXXX
  */
 function validatePhoneNumber(phone) {
-  const phoneRegex = /^\+58[0-9]{10}$/;
-  return phoneRegex.test(phone.replace(/\D/g, '+'));
+  if (!phone) return false;
+  
+  // Eliminar espacios, guiones y paréntesis
+  const cleaned = phone.replace(/[\s\-\(\)]/g, '');
+  
+  // Regex que acepta: +58 + 10 dígitos, o 58 + 10 dígitos, o 0 + 9 dígitos (local)
+  const phoneRegex = /^(\+58|58)?[0-9]{10}$/;
+  const localRegex = /^0[0-9]{9}$/;
+  
+  return phoneRegex.test(cleaned) || localRegex.test(cleaned);
+}
+
+/**
+ * Normalizar número de teléfono al formato internacional +58XXXXXXXXXX
+ */
+function normalizePhoneNumber(phone) {
+  if (!phone) return phone;
+  
+  const cleaned = phone.replace(/[\s\-\(\)]/g, '');
+  
+  // Si ya tiene +58 al inicio
+  if (/^\+58[0-9]{10}$/.test(cleaned)) {
+    return cleaned;
+  }
+  
+  // Si tiene 58 al inicio (sin +)
+  if (/^58[0-9]{10}$/.test(cleaned)) {
+    return '+' + cleaned;
+  }
+  
+  // Si es formato local (0 + 9 dígitos)
+  if (/^0[0-9]{9}$/.test(cleaned)) {
+    return '+58' + cleaned.substring(1);
+  }
+  
+  // Si tiene 10 dígitos sin código de país, asumir Venezuela
+  if (/^[0-9]{10}$/.test(cleaned)) {
+    return '+58' + cleaned;
+  }
+  
+  // Por defecto, agregar +
+  return '+' + cleaned;
 }
 
 /**
@@ -40,14 +81,20 @@ function validatePaymentReference(reference) {
  * Middleware para validar pago móvil
  */
 function validateMobilePayment(req, res, next) {
-  const { phone_number, amount, plan_id, client_mac } = req.body;
+  // Aceptar tanto 'phone' como 'phone_number'
+  const phoneRaw = req.body.phone || req.body.phone_number;
+  const { amount, plan_id, client_mac } = req.body;
 
   const errors = [];
 
-  if (!phone_number) {
+  if (!phoneRaw) {
     errors.push('Número de teléfono es requerido');
-  } else if (!validatePhoneNumber(phone_number)) {
-    errors.push('Formato de teléfono inválido. Use: +58XXXXXXXXXX');
+  } else if (!validatePhoneNumber(phoneRaw)) {
+    errors.push('Formato de teléfono inválido. Use: 584147979209 o +584147979209');
+  } else {
+    // Normalizar el número al formato +58XXXXXXXXXX
+    req.body.phone_number = normalizePhoneNumber(phoneRaw);
+    req.body.phone = req.body.phone_number;
   }
 
   if (!amount) {
@@ -112,6 +159,7 @@ function validateIP(ip) {
 
 module.exports = {
   validatePhoneNumber,
+  normalizePhoneNumber,
   validateMacAddress,
   validateAmount,
   validatePaymentReference,

@@ -18,12 +18,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         return res.json();
       })
-      .then(data => {
-        console.log('✅ Planes:', data);
+      .then(response => {
+        console.log('✅ Planes:', response);
         planSelect.innerHTML = '<option value="">Selecciona un plan...</option>';
-        
-        if (Array.isArray(data) && data.length > 0) {
-          data.forEach(plan => {
+
+        // El backend devuelve { success: true, data: [...] }
+        const planes = response.success ? response.data : response;
+
+        if (Array.isArray(planes) && planes.length > 0) {
+          planes.forEach(plan => {
             const opt = document.createElement('option');
             opt.value = plan.id;
             opt.textContent = `${plan.name} - Bs ${plan.price}`;
@@ -35,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
           statusDiv.textContent = '⚠️ No hay planes disponibles';
           statusDiv.className = 'status-message warning';
         }
-        
+
         setTimeout(() => statusDiv.textContent = '', 3000);
       })
       .catch(err => {
@@ -45,9 +48,35 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
-  // Validar teléfono
+  // Validar teléfono - acepta formatos: 584147979209, +584147979209, 0414-7979209
   function validarTelefono(phone) {
-    return /^[0-9\-]{10,15}$/.test(phone);
+    // Eliminar espacios, guiones y paréntesis
+    const cleaned = phone.replace(/[\s\-\(\)]/g, '');
+    // Aceptar: 10-15 dígitos (formato local o internacional)
+    return /^[0-9]{10,15}$/.test(cleaned);
+  }
+
+  // Formatear teléfono para el backend (agregar +58 si es necesario)
+  function formatearTelefono(phone) {
+    const cleaned = phone.replace(/[\s\-\(\)]/g, '');
+    // Si empieza con 58 y tiene 12 dígitos, agregar +
+    if (/^58[0-9]{10}$/.test(cleaned)) {
+      return '+' + cleaned;
+    }
+    // Si ya empieza con +58, dejarlo como está
+    if (/^\+58[0-9]{10}$/.test(phone)) {
+      return phone;
+    }
+    // Si es formato local (10 dígitos empezando con 0), convertir a internacional
+    if (/^0[0-9]{9}$/.test(cleaned)) {
+      return '+58' + cleaned.substring(1);
+    }
+    // Si empieza con 58 pero no tiene el formato correcto, agregar +
+    if (/^58[0-9]+$/.test(cleaned)) {
+      return '+' + cleaned;
+    }
+    // Por defecto, retornar con +
+    return '+' + cleaned;
   }
 
   // Cargar planes
@@ -61,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const planId = form.plan.value;
 
     if (!validarTelefono(phone)) {
-      statusDiv.textContent = '❌ Teléfono inválido (ej: 0414-1234567)';
+      statusDiv.textContent = '❌ Teléfono inválido. Use: 584147979209 o 0414-7979209';
       statusDiv.className = 'status-message error';
       return;
     }
@@ -72,6 +101,9 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
+    // Formatear teléfono para el backend
+    const phoneFormatted = formatearTelefono(phone);
+
     submitBtn.disabled = true;
     statusDiv.textContent = '⏳ Procesando...';
     statusDiv.className = 'status-message info';
@@ -80,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('/api/v1/payments/initiate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone, planId })
+        body: JSON.stringify({ phone: phoneFormatted, planId })
       });
 
       const result = await res.json();
