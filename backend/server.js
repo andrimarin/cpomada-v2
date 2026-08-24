@@ -6,6 +6,7 @@ const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -27,6 +28,9 @@ app.use(express.urlencoded({ limit: '10kb', extended: true }));
 const { encryptionMiddleware } = require('./middleware/encryption');
 app.use(encryptionMiddleware);
 
+// Servir archivos estáticos (HTML, CSS, JS)
+app.use(express.static(path.join(__dirname, '../frontend')));
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({
@@ -36,14 +40,29 @@ app.get('/health', (req, res) => {
   });
 });
 
-// Rutas de API
-app.use('/api/v1/plans', require('./routes/plans'));
-app.use('/api/v1/payments', require('./routes/payment'));
-app.use('/api/v1/sessions', require('./routes/sessions'));
-app.use('/api/v1/omada', require('./routes/omada'));
+// Importar rutas
+try {
+  const planRoutes = require('./routes/plans');
+  const paymentRoutes = require('./routes/payments');
+  const sessionRoutes = require('./routes/sessions');
+  const omadaRoutes = require('./routes/omada');
+
+  app.use('/api/v1/plans', planRoutes);
+  app.use('/api/v1/payments', paymentRoutes);
+  app.use('/api/v1/sessions', sessionRoutes);
+  app.use('/api/v1/omada', omadaRoutes);
+} catch (err) {
+  console.warn('⚠️  Algunas rutas no están disponibles:', err.message);
+}
 
 // Rutas estáticas del portal
 app.use('/portal', express.static('../resources'));
+
+// RUTA RAÍZ
+// Servir index.html para rutas no encontradas
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/index.html'));
+});
 
 // 404 Handler
 app.use((req, res) => {
@@ -68,8 +87,10 @@ app.use((err, req, res, next) => {
 
 // Iniciar servidor
 app.listen(PORT, () => {
-  console.log(`✅ Servidor corriendo en puerto ${PORT}`);
-  console.log(`📡 Ambiente: ${process.env.NODE_ENV || 'development'}`);
-  console.log(`🏦 Banco: Bancomercantil`);
-  console.log(`☁️  Omada: ${process.env.OMADA_CONTROLLER_TYPE === 'oc200' ? 'OC200' : 'Cloud'}`);
+  console.log(`✅ Servidor corriendo en http://localhost:${PORT}`);
+  console.log(`📱 Frontend: http://localhost:${PORT}`);
+  console.log(`🔌 API: http://localhost:${PORT}/api/v1`);
+  console.log(`❤️  Health: http://localhost:${PORT}/health`);
 });
+
+module.exports = app;

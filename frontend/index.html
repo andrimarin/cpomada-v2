@@ -8,20 +8,48 @@
 </head>
 <body>
   <div class="container">
-    <img src="logo.png" alt="Logo" class="logo" />
-    <h1>Bienvenido al Portal WiFi</h1>
+    <div class="header">
+      <h1>🌐 Portal WiFi</h1>
+      <p>Selecciona un plan y conecta ahora</p>
+    </div>
+
     <form id="access-form">
-      <label for="phone">Teléfono (Pago Móvil):</label>
-      <input type="tel" id="phone" name="phone" required placeholder="0414-1234567">
-      <label for="plan">Selecciona tu plan:</label>
-      <select id="plan" name="plan" required></select>
-      <button type="submit">Pagar y Conectar</button>
+      <div class="form-group">
+        <label for="phone">📱 Teléfono (Pago Móvil):</label>
+        <input 
+          type="tel" 
+          id="phone" 
+          name="phone" 
+          required 
+          placeholder="0414-1234567"
+          pattern="[0-9\-]{10,15}"
+        >
+        <small>Formato: 0414-1234567</small>
+      </div>
+
+      <div class="form-group">
+        <label for="plan">⏱️ Selecciona tu plan:</label>
+        <select id="plan" name="plan" required>
+          <option value="">Cargando planes...</option>
+        </select>
+      </div>
+
+      <button type="submit" id="submit-btn">💳 Pagar y Conectar</button>
     </form>
-    <div id="status"></div>
+
+    <div id="status" class="status-message"></div>
+    
+    <div class="info-section">
+      <h3>ℹ️ Información</h3>
+      <p>Planes desde <strong>Bs 1.50</strong> por hora</p>
+      <p>Pago seguro con Bancomercantil</p>
+    </div>
+
     <footer>
-      <small>Powered by Omada + Bancomercantil</small>
+      <small>Portal WiFi © 2024 | Powered by Omada + Bancomercantil</small>
     </footer>
   </div>
+
   <script src="index.js"></script>
 </body>
 </html>
