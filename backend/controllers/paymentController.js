@@ -45,16 +45,20 @@ class PaymentController {
       const plan = plans[0];
       const transactionId = `TRX-${uuidv4()}`;
       const invoiceNumber = `INV-${Date.now()}-${plan_id}`;
-      const paymentReference = `WIFI-${client_mac.replace(/:/g, '').toUpperCase().slice(-8)}-${plan_id}`;
+      // Si no hay client_mac, generar referencia aleatoria
+      const macSuffix = client_mac
+        ? client_mac.replace(/:/g, '').toUpperCase().slice(-8)
+        : uuidv4().slice(0, 8).toUpperCase();
+      const paymentReference = `WIFI-${macSuffix}-${plan_id}`;
 
       // Crear registro de transacción
       await connection.execute(
-        `INSERT INTO transactions 
+        `INSERT INTO transactions
         (transaction_id, client_mac, phone_number, plan_id, amount, currency, status, payment_reference, invoice_number)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           transactionId,
-          client_mac,
+          client_mac || 'WEB-PORTAL',
           phone_number,
           plan_id,
           plan.price,
@@ -94,22 +98,40 @@ class PaymentController {
         }
       };
 
-      // Encriptar datos sensibles
-      const encryptedData = encryptSensitiveData(
-        {
-          destination_mobile_number: phone_number
-        },
-        config.encryptionKey
-      );
+      // MODO DEMO: Si las credenciales no están configuradas, simular respuesta exitosa
+      const isDemoMode = !config.clientId ||
+                         config.clientId === 'tu_client_id_sandbox' ||
+                         config.clientId === 'tu_client_id_produccion';
 
-      paymentPayload.transaction_c2p.destination_mobile_number = encryptedData.destination_mobile_number;
+      let mercantilResponse;
 
-      // Enviar a Bancomercantil
-      const mercantilResponse = await this._callMercantilAPI(
-        '/payment/c2p',
-        'POST',
-        paymentPayload
-      );
+      if (isDemoMode) {
+        console.log('🧪 MODO DEMO - Simulando respuesta de Bancomercantil');
+        mercantilResponse = {
+          status: 'success',
+          errorCode: '0',
+          message: 'Pago simulado exitosamente (modo demo)',
+          transactionId: transactionId,
+          redirectUrl: null
+        };
+      } else {
+        // Encriptar datos sensibles
+        const encryptedData = encryptSensitiveData(
+          {
+            destination_mobile_number: phone_number
+          },
+          config.encryptionKey
+        );
+
+        paymentPayload.transaction_c2p.destination_mobile_number = encryptedData.destination_mobile_number;
+
+        // Enviar a Bancomercantil
+        mercantilResponse = await this._callMercantilAPI(
+          '/payment/c2p',
+          'POST',
+          paymentPayload
+        );
+      }
 
       if (mercantilResponse.status === 'success' || mercantilResponse.errorCode === '0') {
         // Actualizar transacción como procesando
