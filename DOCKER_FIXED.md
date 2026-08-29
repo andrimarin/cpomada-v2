@@ -2,7 +2,7 @@
 
 ## Problema Resuelto
 
-Se corrigió el error de imagen MariaDB  prueba en docker-compose.yml
+Se corrigió el error de imagen     MariaDB  prueba en docker-compose.yml
 
 ### Cambio Realizado
 
