@@ -83,7 +83,8 @@ function validatePaymentReference(reference) {
 function validateMobilePayment(req, res, next) {
   // Aceptar tanto 'phone' como 'phone_number'
   const phoneRaw = req.body.phone || req.body.phone_number;
-  const { amount, plan_id, client_mac } = req.body;
+  const { plan_id, client_mac } = req.body;
+  // amount es opcional - se obtiene del plan en el controlador
 
   const errors = [];
 
@@ -97,18 +98,13 @@ function validateMobilePayment(req, res, next) {
     req.body.phone = req.body.phone_number;
   }
 
-  if (!amount) {
-    errors.push('Monto es requerido');
-  } else if (!validateAmount(amount)) {
-    errors.push('Monto debe ser positivo y menor a 999,999.99');
-  }
-
   if (!plan_id) {
     errors.push('Plan es requerido');
   } else if (!validator.isInt(plan_id.toString())) {
     errors.push('ID de plan inválido');
   }
 
+  // client_mac es opcional para el portal web (se obtiene de Omada en producción)
   if (client_mac && !validateMacAddress(client_mac)) {
     errors.push('Dirección MAC inválida');
   }
