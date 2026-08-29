@@ -2,7 +2,7 @@
 
 ## Problema Resuelto
 
-Se corrigió el error de imagen MariaDB en docker-compose.yml
+Se corrigió el error de imagen MariaDB  prueba en docker-compose.yml
 
 ### Cambio Realizado
 
@@ -15,6 +15,10 @@ image: mariadb:latest       ✅ Funciona
 ```
 
 ---
+
+git config --global user.name "andrimarin"
+git config --global user.email "andri.marin@gmail.com"
+git config --global init.defaultBranch main
 
 ## ¿Por Qué?
 
