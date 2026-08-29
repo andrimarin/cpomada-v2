@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  # Base de datos MariaDB
+  mariadb:
+    image: mariadb:latest
+    container_name: omada_portal_db
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-root}
+      MYSQL_DATABASE: ${DB_NAME:-omada_payment}
+      MYSQL_USER: ${DB_USER:-portal_user}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-portal_pass}
+    ports:
+      - "${DB_PORT:-3306}:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    networks:
+      - omada_network
+    restart: unless-stopped
+
+  # Backend Node.js
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: omada_portal_api
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      PORT: 3000
+      DB_HOST: mariadb
+      DB_PORT: 3306
+      DB_USER: ${DB_USER:-portal_user}
+      DB_PASSWORD: ${DB_PASSWORD:-portal_pass}
+      DB_NAME: ${DB_NAME:-omada_payment}
+      MERCANTIL_CONTROLLER_TYPE: ${MERCANTIL_CONTROLLER_TYPE:-sandbox}
+      MERCANTIL_CLIENT_ID_SANDBOX: ${MERCANTIL_CLIENT_ID_SANDBOX}
+      MERCANTIL_CLIENT_ID_PROD: ${MERCANTIL_CLIENT_ID_PROD}
+      MERCANTIL_INTEGRATOR_ID: ${MERCANTIL_INTEGRATOR_ID:-31}
+      MERCANTIL_MERCHANT_ID: ${MERCANTIL_MERCHANT_ID}
+      MERCANTIL_TERMINAL_ID: ${MERCANTIL_TERMINAL_ID}
+      MERCANTIL_ENCRYPTION_KEY: ${MERCANTIL_ENCRYPTION_KEY}
+      OMADA_CONTROLLER_TYPE: ${OMADA_CONTROLLER_TYPE:-cloud}
+      OMADA_SITE_ID: ${OMADA_SITE_ID}
+      OMADA_USERNAME: ${OMADA_USERNAME}
+      OMADA_PASSWORD: ${OMADA_PASSWORD}
+      CORS_ORIGIN: ${CORS_ORIGIN:-*}
+      LANDING_URL: ${LANDING_URL:-http://localhost:3000}
+    ports:
+      - "${PORT:-3000}:3000"
+    volumes:
+      - ./backend:/app/backend
+      - ./frontend:/app/frontend
+    networks:
+      - omada_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Nginx (Reverse Proxy + SSL - Opcional)
+  nginx:
+    image: nginx:alpine
+    container_name: omada_portal_nginx
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    networks:
+      - omada_network
+    restart: unless-stopped
+    profiles:
+      - production
+
+volumes:
+  mariadb_data:
+    driver: local
+
+networks:
+  omada_network:
+    driver: bridge
