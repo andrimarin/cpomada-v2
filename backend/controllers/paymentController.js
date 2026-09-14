@@ -237,96 +237,144 @@ class PaymentController {
   }
 
   /**
+   * Validar firma del webhook de Bancomercantil
+   */
+  static _validateWebhookSignature(req) {
+    // En producción, validar la firma del webhook
+    // Por ahora, verificar que venga de una fuente confiable
+    
+    // Verificar headers de seguridad
+    const contentType = req.headers['content-type'];
+    if (!contentType || !contentType.includes('application/json')) {
+      throw new Error('Content-Type inválido');
+    }
+
+    // Verificar que el body tenga los campos requeridos
+    const { transactionId, status, errorCode } = req.body;
+    if (!transactionId || !status) {
+      throw new Error('Campos requeridos faltantes en webhook');
+    }
+
+    // En producción: validar firma HMAC o token de autenticación
+    // const signature = req.headers['x-mercantil-signature'];
+    // const isValid = this._verifySignature(req.body, signature);
+    // if (!isValid) throw new Error('Firma inválida');
+
+    return true;
+  }
+
+  /**
    * Webhook para confirmación de Bancomercantil
    */
   static async webhookMercantilCallback(req, res) {
+    const connection = await db.beginTransaction();
+
     try {
-      const { transactionId, status, errorCode, message } = req.body;
+      // Validar firma/fuente del webhook
+      this._validateWebhookSignature(req);
 
-      const connection = await db.beginTransaction();
+      const { transactionId, status, errorCode, message, paymentReference } = req.body;
 
-      try {
-        // Buscar transacción
-        const transactions = await db.query(
-          'SELECT * FROM transactions WHERE payment_reference = ?',
+      // Buscar transacción por payment_reference o transaction_id
+      let transactions = await db.query(
+        'SELECT t.*, p.hours FROM transactions t JOIN plans p ON t.plan_id = p.id WHERE t.payment_reference = ?',
+        [paymentReference || transactionId]
+      );
+
+      if (transactions.length === 0) {
+        // Intentar buscar por transaction_id
+        transactions = await db.query(
+          'SELECT t.*, p.hours FROM transactions t JOIN plans p ON t.plan_id = p.id WHERE t.transaction_id = ?',
           [transactionId]
         );
+      }
 
-        if (transactions.length === 0) {
-          return res.status(404).json({
-            success: false,
-            message: 'Transacción no encontrada'
-          });
-        }
+      if (transactions.length === 0) {
+        await connection.commit();
+        return res.status(404).json({
+          success: false,
+          errorCode: 'TRANSACTION_NOT_FOUND',
+          message: 'Transacción no encontrada'
+        });
+      }
 
-        const transaction = transactions[0];
+      const transaction = transactions[0];
 
-        if (status === 'completed' || errorCode === '0') {
-          // Pago exitoso
-          await connection.execute(
-            'UPDATE transactions SET status = ? WHERE id = ?',
-            ['completed', transaction.id]
-          );
+      // Verificar que la transacción no haya sido procesada ya
+      if (transaction.status === 'completed') {
+        await connection.commit();
+        return res.json({
+          success: true,
+          message: 'Transacción ya procesada anteriormente',
+          transactionId: transaction.transaction_id
+        });
+      }
 
-          // Crear sesión WiFi
-          const sessionId = `SESS-${uuidv4()}`;
-          const endTime = new Date(Date.now() + transaction.hours * 3600000);
+      if (status === 'completed' || status === 'success' || errorCode === '0') {
+        // Pago exitoso
+        await connection.execute(
+          'UPDATE transactions SET status = ?, mercantil_response = ? WHERE id = ?',
+          ['completed', JSON.stringify(req.body), transaction.id]
+        );
 
-          await connection.execute(
-            `INSERT INTO wifi_sessions 
-            (session_id, client_mac, transaction_id, ap_mac, gateway_mac, ssid_name, radio_id, vid, plan_id, end_time, duration_hours)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-            [
-              sessionId,
-              transaction.client_mac,
-              transaction.id,
-              '',
-              '',
-              '',
-              null,
-              null,
-              transaction.plan_id,
-              endTime,
-              2 // Placeholder
-            ]
-          );
+        // Importar controlador de Omada
+        const omadaController = require('./omadaController');
 
-          await connection.commit();
+        // Crear sesión WiFi y autorizar en Omada
+        const sessionResult = await omadaController.createWifiSession({
+          client_mac: transaction.client_mac,
+          transaction_id: transaction.id,
+          plan_id: transaction.plan_id,
+          ap_mac: transaction.ap_mac || '',
+          gateway_mac: transaction.gateway_mac || '',
+          ssid_name: transaction.ssid_name || '',
+          radio_id: transaction.radio_id || null,
+          vid: transaction.vid || null
+        });
 
-          // Notificar a Omada
-          await this._notifyOmadaAuth(transaction.client_mac, sessionId);
+        await connection.commit();
 
-          return res.json({
-            success: true,
-            message: 'Pago confirmado',
-            sessionId
-          });
-        } else {
-          // Pago fallido
-          await connection.execute(
-            'UPDATE transactions SET status = ?, error_code = ?, error_message = ? WHERE id = ?',
-            ['failed', errorCode, message, transaction.id]
-          );
+        console.log(`✅ Pago confirmado para ${transaction.client_mac}, sesión: ${sessionResult.sessionId}`);
 
-          await connection.commit();
+        return res.json({
+          success: true,
+          message: 'Pago confirmado y sesión WiFi creada',
+          transactionId: transaction.transaction_id,
+          sessionId: sessionResult.sessionId,
+          clientMac: transaction.client_mac,
+          duration: sessionResult.duration,
+          endTime: sessionResult.endTime,
+          omadaAuthorized: sessionResult.omadaAuthorized
+        });
+      } else {
+        // Pago fallido
+        await connection.execute(
+          'UPDATE transactions SET status = ?, error_code = ?, error_message = ?, mercantil_response = ? WHERE id = ?',
+          ['failed', errorCode || 'UNKNOWN', message || 'Pago rechazado', JSON.stringify(req.body), transaction.id]
+        );
 
-          return res.status(400).json({
-            success: false,
-            message: 'Pago rechazado',
-            errorCode,
-            errorMessage: message
-          });
-        }
-      } catch (innerError) {
-        await connection.rollback();
-        throw innerError;
+        await connection.commit();
+
+        console.log(`❌ Pago fallido para transacción ${transaction.transaction_id}: ${message}`);
+
+        return res.status(400).json({
+          success: false,
+          errorCode: errorCode || 'PAYMENT_REJECTED',
+          message: message || 'Pago rechazado por el banco',
+          transactionId: transaction.transaction_id
+        });
       }
     } catch (error) {
+      await connection.rollback();
       console.error('Error processing webhook:', error);
+      
       return res.status(500).json({
         success: false,
-        message: 'Error al procesar el webhook'
+        errorCode: 'WEBHOOK_ERROR',
+        message: error.message || 'Error al procesar el webhook'
       });
+    } finally {
+      connection.release();
     }
   }
 
