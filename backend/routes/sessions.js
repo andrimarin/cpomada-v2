@@ -4,6 +4,8 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
+const omadaController = require('../controllers/omadaController');
+const { authenticateToken, requireAdmin } = require('../middleware/auth');
 
 /**
  * GET verificar sesión activa
@@ -128,6 +130,61 @@ router.post('/extend', async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Error al extender sesión'
+    });
+  }
+});
+
+/**
+ * GET /api/v1/sessions/active - Listar sesiones activas (admin)
+ */
+router.get('/active', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const sessions = await db.query(
+      `SELECT s.*, p.name as plan_name, p.hours as plan_hours,
+              t.phone_number, t.amount
+       FROM wifi_sessions s
+       JOIN plans p ON s.plan_id = p.id
+       LEFT JOIN transactions t ON s.transaction_id = t.id
+       WHERE s.status = 'active' AND s.end_time > NOW()
+       ORDER BY s.start_time DESC`
+    );
+
+    return res.json({
+      success: true,
+      count: sessions.length,
+      data: sessions
+    });
+  } catch (error) {
+    console.error('Error fetching active sessions:', error);
+    return res.status(500).json({
+      success: false,
+      errorCode: 'DB_ERROR',
+      message: 'Error al obtener sesiones activas'
+    });
+  }
+});
+
+/**
+ * POST /api/v1/sessions/expire - Expirar sesiones antiguas (admin)
+ */
+router.post('/expire', authenticateToken, requireAdmin, async (req, res) => {
+  try {
+    const result = await omadaController.expireOldSessions();
+
+    return res.json({
+      success: result.success,
+      message: result.success
+        ? `${result.expired} sesiones expiradas`
+        : 'Error al expirar sesiones',
+      expired: result.expired,
+      sessions: result.sessions || []
+    });
+  } catch (error) {
+    console.error('Error expiring sessions:', error);
+    return res.status(500).json({
+      success: false,
+      errorCode: 'EXPIRE_ERROR',
+      message: 'Error al expirar sesiones'
     });
   }
 });

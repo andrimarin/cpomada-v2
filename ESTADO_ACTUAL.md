@@ -1,16 +1,16 @@
 # Estado Actual del Proyecto - Portal Cautivo Omada V2
 
 **Fecha**: Septiembre 2026  
-**Versión**: 2.1.0  
-**Avance General**: 75%
+**Versión**: 2.2.0  
+**Avance General**: 90%
 
 ---
 
 ## 🎯 RESUMEN EJECUTIVO (30 segundos)
 
-Portal cautivo WiFi con pago móvil Bancomercantil. Backend completo, BD funcional, frontend operativo, Docker listo. **Pendiente**: Completar integraciones con APIs externas (Bancomercantil webhook, Omada), agregar tests y autenticación admin.
+Portal cautivo WiFi con pago móvil Bancomercantil. **COMPLETADO**: Backend, BD, frontend, Docker, webhook Bancomercantil, integración Omada, autenticación JWT. **Pendiente**: Tests completos, documentación API, rate limiting.
 
-**Tiempo estimado para producción**: 2-3 semanas
+**Tiempo estimado para producción**: 1 semana
 
 ---
 
@@ -18,15 +18,16 @@ Portal cautivo WiFi con pago móvil Bancomercantil. Backend completo, BD funcion
 
 | Componente | Progreso | Estado | Prioridad |
 |------------|----------|--------|-----------|
-| Backend Node.js | 95% | ✅ Funcional | - |
+| Backend Node.js | 98% | ✅ Funcional | - |
 | Base de Datos | 100% | ✅ Completo | - |
 | Frontend | 95% | ✅ Funcional | - |
 | Docker | 100% | ✅ Completo | - |
-| Integración Bancomercantil | 70% | ⚠️ Parcial | 🔴 Alta |
-| Integración Omada | 60% | ⚠️ Parcial | 🔴 Alta |
-| Tests | 0% | ❌ Pendiente | 🟡 Media |
+| Integración Bancomercantil | 95% | ✅ Completo | - |
+| Integración Omada | 95% | ✅ Completo | - |
+| Autenticación JWT | 100% | ✅ Completo | - |
+| Tests | 30% | ⚠️ Inicial | 🟡 Media |
 | Documentación API | 0% | ❌ Pendiente | 🟢 Baja |
-| Autenticación Admin | 0% | ❌ Pendiente | 🟡 Media |
+| Rate Limiting | 0% | ❌ Pendiente | 🟢 Baja |
 
 ---
 

@@ -69,6 +69,14 @@ app.get('/health', (req, res) => {
 
 // Importar rutas (cada una por separado para que un fallo no bloquee las demás)
 try {
+  const authRoutes = require('./routes/auth');
+  app.use('/api/v1/auth', authRoutes);
+  console.log('✅ Ruta /api/v1/auth cargada');
+} catch (err) {
+  console.error('❌ Error cargando /api/v1/auth:', err.message);
+}
+
+try {
   const planRoutes = require('./routes/plans');
   app.use('/api/v1/plans', planRoutes);
   console.log('✅ Ruta /api/v1/plans cargada');

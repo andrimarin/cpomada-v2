@@ -7,6 +7,77 @@ y este proyecto sigue [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [2.2.0] - 2026-09-14
+
+### Añadido
+- **Controlador Omada completo** (`backend/controllers/omadaController.js`)
+  - Autenticación con Omada Cloud/OC200
+  - Autorización de clientes por MAC address
+  - Desautenticación de clientes
+  - Creación de sesiones WiFi con integración BD + Omada
+  - Expiración automática de sesiones antiguas
+  - Manejo de tokens con renovación automática
+  - Soporte HTTPS con certificados self-signed
+
+- **Sistema de autenticación JWT** (`backend/middleware/auth.js`)
+  - Generación y verificación de tokens JWT
+  - Middleware de autenticación
+  - Middleware de verificación de rol admin
+  - Login de administrador
+  - Renovación de tokens (refresh)
+  - Logout con auditoría
+  - Registro de intentos fallidos
+
+- **Rutas de autenticación** (`backend/routes/auth.js`)
+  - POST /api/v1/auth/login
+  - POST /api/v1/auth/verify
+  - POST /api/v1/auth/refresh
+  - POST /api/v1/auth/logout
+
+- **Rutas de sesiones mejoradas**
+  - GET /api/v1/sessions/active (admin)
+  - POST /api/v1/sessions/expire (admin)
+  - Verificación de sesión con tiempo restante
+  - Historial de sesiones con límite configurable
+
+- **Tests unitarios iniciales**
+  - Tests para middleware de autenticación
+  - Tests para generación/verificación de tokens
+
+- **Variables de entorno**
+  - JWT_SECRET
+  - JWT_EXPIRES_IN
+  - ADMIN_USERNAME
+  - ADMIN_PASSWORD
+
+### Corregido
+- **Webhook Bancomercantil mejorado**
+  - Validación de firma/fuente del webhook
+  - Verificación de Content-Type
+  - Prevención de procesamiento duplicado
+  - Integración con Omada para autorización automática
+  - Manejo completo de errores con rollback
+  - Búsqueda por payment_reference o transaction_id
+
+- **Rutas protegidas**
+  - POST/PUT/DELETE en /plans requieren autenticación admin
+  - GET en /plans permanece público
+  - Nuevas rutas admin para sesiones
+
+### Seguridad
+- ✅ Rutas admin protegidas con JWT
+- ✅ Webhook con validación de fuente
+- ✅ Autenticación completa con roles
+- ✅ Auditoría de intentos fallidos
+- ✅ Tokens con expiración configurable
+
+### Técnico
+- **Líneas de código añadidas**: ~830
+- **Nuevos archivos**: 4 (omadaController, auth middleware, auth routes, tests)
+- **Archivos modificados**: 5 (paymentController, plans routes, sessions routes, server.js, .env.example)
+
+---
+
 ## [2.1.0] - 2026-09-14
 
 ### Añadido
